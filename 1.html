@@ -3,46 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的自我介紹</title>
+    <title>我的動態自我介紹</title>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --bg-color: #f4f7f6;
+            --primary: #2c3e50;
+            --accent: #3498db;
+            --bg: #f0f2f5;
             --card-bg: #ffffff;
         }
 
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--primary-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--primary);
             margin: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
         }
 
+        /* 版面配置 */
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* 左側：控制台樣式 */
+        .editor-panel {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .editor-panel h3 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;}
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem;}
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box; /* 確保 padding 不會撐破寬度 */
+        }
+        
+        /* 髮量滑桿 */
+        input[type="range"] { width: 100%; cursor: pointer; }
+
+        /* 右側：預覽卡片樣式 */
+        .preview-area {
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .profile-card {
             background-color: var(--card-bg);
             width: 100%;
-            max-width: 400px;
+            max-width: 380px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             overflow: hidden;
             text-align: center;
-            padding-bottom: 30px;
+            padding-bottom: 20px;
+            transition: transform 0.2s;
         }
 
         .cover-photo {
-            height: 120px;
-            background: linear-gradient(135deg, var(--accent-color), #8e44ad);
+            height: 100px;
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
         }
 
-        .avatar-container {
+        .avatar-wrapper {
+            position: relative;
             margin-top: -60px;
-            margin-bottom: 15px;
+            display: inline-block;
         }
 
         .avatar {
@@ -51,115 +98,242 @@
             border-radius: 50%;
             border: 5px solid var(--card-bg);
             object-fit: cover;
-            background-color: #ddd;
+            background-color: #eee;
         }
 
-        h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: var(--primary-color);
-        }
+        .card-content { padding: 0 25px; }
+        
+        .name-display { margin: 10px 0 5px 0; font-size: 1.8rem; }
+        .title-display { color: #7f8c8d; margin-bottom: 15px; font-size: 0.95rem; }
+        .bio-display { font-size: 0.95rem; line-height: 1.5; color: #555; min-height: 50px;}
 
-        .job-title {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            font-weight: normal;
-        }
-
-        .info-section {
-            padding: 0 30px;
+        /* 髮量顯示條 */
+        .hair-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
             text-align: left;
         }
-
-        .info-item {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        .info-label {
-            font-size: 0.8rem;
-            color: #95a5a6;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .info-value {
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        /* 髮量專區樣式 */
-        .hair-volume-container {
-            background-color: #ecf0f1;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .hair-bar-bg {
-            background-color: #bdc3c7;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
+        .hair-bar-bg { background: #e9ecef; height: 12px; border-radius: 6px; overflow: hidden; margin: 8px 0; }
         .hair-bar-fill {
             height: 100%;
-            /* 預設寬度，可調整 */
-            width: 85%; 
-            background: linear-gradient(90deg, #f1c40f, #27ae60);
-            border-radius: 5px;
-            transition: width 1s ease-in-out;
+            width: 80%;
+            background: linear-gradient(90deg, #f1c40f, #2ecc71);
+            border-radius: 6px;
+            transition: width 0.3s ease, background 0.3s;
         }
 
-        .hair-status {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            margin-top: 5px;
-            color: #7f8c8d;
+        /* 留言區塊 */
+        .comments-section {
+            width: 100%;
+            max-width: 380px;
+            background: white;
+            margin-top: 20px;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        .comment-list {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0 0;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
-        .social-links {
-            margin-top: 25px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .btn {
-            text-decoration: none;
-            color: white;
-            background-color: var(--primary-color);
-            padding: 10px 20px;
-            border-radius: 25px;
+        .comment-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
             font-size: 0.9rem;
-            transition: background 0.3s;
+            text-align: left;
         }
+        .comment-item strong { display: block; color: var(--accent); font-size: 0.8rem;}
 
-        .btn:hover {
-            background-color: var(--accent-color);
+        .comment-form { display: flex; gap: 5px; margin-top: 10px; }
+        .comment-form input { flex: 1; padding: 8px; border: 1px solid #ddd; border-radius: 4px;}
+        .btn-submit {
+            background: var(--primary); color: white; border: none; padding: 8px 15px;
+            border-radius: 4px; cursor: pointer;
         }
+        .btn-submit:hover { background: var(--accent); }
+
+        /* 上傳按鈕美化 */
+        .file-upload-btn {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .file-upload-btn:hover { background: #dee2e6; }
 
     </style>
 </head>
 <body>
 
-    <div class="profile-card">
-        <div class="cover-photo"></div>
+<div class="main-container">
+
+    <div class="editor-panel">
+        <h3>⚙️ 編輯個人資料</h3>
         
-        <div class="avatar-container">
-            <img src="https://i0.wp.com/drkkchen.com/wp-content/uploads/2022/02/%E6%88%AA%E5%9C%96-2022-02-17-%E4%B8%8B%E5%8D%8811.12.03-s.png?ssl=1" alt="我的照片" class="avatar">
+        <div class="input-group">
+            <label>上傳大頭貼</label>
+            <label for="imgInput" class="file-upload-btn">📷 選擇圖片</label>
+            <input type="file" id="imgInput" accept="image/*" style="display: none;">
         </div>
 
-        <h1>王小明</h1>
-        <h2 class="job-title">網頁設計師 / 全端工程師</h2>
+        <div class="input-group">
+            <label>姓名</label>
+            <input type="text" id="nameInput" value="王小明" placeholder="輸入你的名字">
+        </div>
 
-        <div class="info-section">
-            <div class="info-item">
-                <span class="info-label
+        <div class="input-group">
+            <label>職稱 / 身分</label>
+            <input type="text" id="titleInput" value="網頁設計師" placeholder="輸入職稱">
+        </div>
+
+        <div class="input-group">
+            <label>自我介紹</label>
+            <textarea id="bioInput" rows="3">熱愛科技與設計，這是一段關於我的簡短介紹。</textarea>
+        </div>
+
+        <div class="input-group">
+            <label>目前髮量指數：<span id="hairValDisplay">80</span>%</label>
+            <input type="range" id="hairSlider" min="0" max="100" value="80">
+        </div>
+    </div>
+
+    <div class="preview-area">
+        
+        <div class="profile-card">
+            <div class="cover-photo"></div>
+            
+            <div class="avatar-wrapper">
+                <img src="https://placehold.co/400x400/png?text=User" id="profileImg" class="avatar" alt="Profile">
+            </div>
+
+            <div class="card-content">
+                <h1 class="name-display" id="displayName">王小明</h1>
+                <div class="title-display" id="displayTitle">網頁設計師</div>
+                <div class="bio-display" id="displayBio">熱愛科技與設計，這是一段關於我的簡短介紹。</div>
+
+                <div class="hair-section">
+                    <strong style="font-size: 0.8rem; color: #666;">髮量監測儀表</strong>
+                    <div class="hair-bar-bg">
+                        <div class="hair-bar-fill" id="hairBar" style="width: 80%;"></div>
+                    </div>
+                    <div style="font-size: 0.8rem; display: flex; justify-content: space-between;">
+                        <span>稀疏</span>
+                        <span id="hairText">茂密森林 🌲</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h4 style="margin:0 0 10px 0;">💬 留言板</h4>
+            <ul class="comment-list" id="commentList">
+                <li class="comment-item">
+                    <strong>路人甲</strong>
+                    髮量看起來真的很多，羨慕！
+                </li>
+            </ul>
+
+            <div class="comment-form">
+                <input type="text" id="commentName" placeholder="暱稱" style="width: 30%;">
+                <input type="text" id="commentText" placeholder="說點什麼...">
+                <button class="btn-submit" onclick="addComment()">送出</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // 1. 即時文字更新邏輯
+    const nameInput = document.getElementById('nameInput');
+    const titleInput = document.getElementById('titleInput');
+    const bioInput = document.getElementById('bioInput');
+    
+    const displayName = document.getElementById('displayName');
+    const displayTitle = document.getElementById('displayTitle');
+    const displayBio = document.getElementById('displayBio');
+
+    nameInput.addEventListener('input', (e) => displayName.textContent = e.target.value);
+    titleInput.addEventListener('input', (e) => displayTitle.textContent = e.target.value);
+    bioInput.addEventListener('input', (e) => displayBio.textContent = e.target.value);
+
+    // 2. 髮量滑桿邏輯
+    const hairSlider = document.getElementById('hairSlider');
+    const hairValDisplay = document.getElementById('hairValDisplay');
+    const hairBar = document.getElementById('hairBar');
+    const hairText = document.getElementById('hairText');
+
+    hairSlider.addEventListener('input', (e) => {
+        const val = e.target.value;
+        hairValDisplay.textContent = val;
+        hairBar.style.width = val + "%";
+
+        // 根據數值改變顏色和文字
+        if(val < 30) {
+            hairBar.style.background = "#e74c3c"; // 紅色
+            hairText.textContent = "危機重重 🍂";
+        } else if (val < 60) {
+            hairBar.style.background = "#f39c12"; // 橘色
+            hairText.textContent = "還過得去 🌱";
+        } else {
+            hairBar.style.background = "linear-gradient(90deg, #f1c40f, #2ecc71)"; // 綠色
+            hairText.textContent = "茂密森林 🌲";
+        }
+    });
+
+    // 3. 圖片上傳邏輯
+    const imgInput = document.getElementById('imgInput');
+    const profileImg = document.getElementById('profileImg');
+
+    imgInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                profileImg.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // 4. 留言板邏輯
+    function addComment() {
+        const nameField = document.getElementById('commentName');
+        const textField = document.getElementById('commentText');
+        const list = document.getElementById('commentList');
+
+        const name = nameField.value.trim() || "匿名訪客";
+        const text = textField.value.trim();
+
+        if(text === "") {
+            alert("請輸入留言內容！");
+            return;
+        }
+
+        const li = document.createElement('li');
+        li.className = 'comment-item';
+        li.innerHTML = `<strong>${name}</strong>${text}`;
+        
+        list.appendChild(li);
+
+        // 清空輸入框
+        nameField.value = "";
+        textField.value = "";
+        
+        // 捲動到底部
+        list.scrollTop = list.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
